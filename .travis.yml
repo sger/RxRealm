@@ -1,0 +1,11 @@
+language: objective-c
+osx_image: xcode7.1
+xcode_sdk: iphonesimulator9.0
+notifications:
+  email: carlosypunto@gmail.com
+install:
+- gem install cocoapods
+- gem install xcpretty --no-rdoc --no-ri --no-document --quiet
+- pod update
+script:
+- set -o pipefail && xcodebuild clean build -workspace RxRealm.xcworkspace -scheme RxRealm ONLY_ACTIVE_ARCH=NO CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO | xcpretty -c
