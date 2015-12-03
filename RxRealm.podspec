@@ -1,8 +1,8 @@
 Pod::Spec.new do |s|
 
   s.name             = "RxRealm"
-  s.version          = "0.0.2"
-  s.summary          = "A simple Realm reactive wrapper for RxSwift."
+  s.version          = "0.0.3"
+  s.summary          = "Reactive interface for Realm using RxSwift"
 
  # s.tvos.deployment_target = '9.0'
   s.ios.deployment_target = '8.0'
@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = "2.0"
 
   s.description      = <<-DESC
-                        A simple Realm reactive wrapper for RxSwift
+                        A simple Realm reactive wrapper for RxSwift. For Swift 2.0 and iOS/OSX/watchOS platforms"
                        DESC
 
   s.homepage         = "https://github.com/carlosypunto/RxRealm"
