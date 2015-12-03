@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name             = "RxRealm"
-  s.version          = "0.0.1"
+  s.version          = "0.0.2"
   s.summary          = "A simple Realm reactive wrapper for RxSwift."
 
  # s.tvos.deployment_target = '9.0'
