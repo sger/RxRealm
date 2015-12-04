@@ -37,7 +37,14 @@ public extension Realm {
     /// Realm save closure
     typealias OperationClosure = (realm: Realm) -> ()
     
-    /// Executes the given operation passing the read to the operation block. Once it's completed the completion closure is called passing error in case of something went wrong
+  /**
+  Executes the given operation passing the read to the operation block. Once it's completed, the completion closure is called passing error in case something went wrong.
+
+  - parameter thread:         Realm thread to operate on
+  - parameter writeOperation: Boolean that will commit a write
+  - parameter completion:     Completion closure that can contain an error
+  - parameter operation:      Operation closure to save in a given realm
+  */
     private static func realmOperationInThread(thread: RealmThread, writeOperation: Bool, completion: RealmError? -> Void, operation: OperationClosure) {
         switch thread {
         case .MainThread:
@@ -80,7 +87,15 @@ public extension Realm {
         }
     }
     
-    /// Generates the Observable that executes the given write operation
+  /**
+  Generates the Observable that executes the given write operation
+
+  - parameter thread:         Realm thread to perform write on
+  - parameter writeOperation: Boolean that determines wether the action is written
+  - parameter operation:      Operation closure to save in a realm
+
+  - returns: An Observable of Void type
+  */
     private static func realmWriteOperationObservable(thread thread: RealmThread, writeOperation: Bool, operation: OperationClosure) -> Observable<Void> {
         return RxSwift.create { observer -> Disposable in
             Realm.realmOperationInThread(thread, writeOperation: writeOperation, completion: { error in
@@ -96,120 +111,123 @@ public extension Realm {
     
     // MARK: - Creation
     
-    /**
-    Add the objects to Realm
-    
-    :param: objects    objects to be added
-    :param: update     true if they have to be updated in case of existing under the same primary key
-    :param: thread     RealmThread where the operation will be executed
-    
-    :returns: Observable that fires operation
-    */
+  /**
+  Add objects to a Realm
+
+  - parameter objects: Objects to be added
+  - parameter update:  Boolean that determines whether an object should be forced updated
+  - parameter thread:  Thread to execute Realm actions
+
+  - returns: Observable that completes operation
+  */
     static func rx_add<S: SequenceType where S.Generator.Element: Object>(objects: S, update: Bool = false, thread: RealmThread = .BackgroundThread) -> Observable<Void> {
-        return realmWriteOperationObservable(thread: thread, writeOperation: true, operation: { (realm: Realm) -> () in
+        return realmWriteOperationObservable(thread: thread, writeOperation: true) { realm in
             realm.add(objects)
-        })
+        }
     }
-    
+
     /**
-     Creates the object in Realm
+     Creates an object in Realm
      
-     :param: type       object type
-     :param: value      object value
-     :param: update     true if the object has to be update in case of existing under the same primary key
-     :param: thread     RealmThread where the operation will be executed
+     - parameter type:   Object type
+     - parameter value:  Value to create object on
+     - parameter update: Force update?
+     - parameter thread: Thread to execute Realm actions
      
-     :returns: Observable that fires the operation
+     - returns: Observable that fires the operation
      */
     static func rx_create<T: Object>(type: T.Type, value: AnyObject = [:], update: Bool = false, thread: RealmThread = .BackgroundThread) -> Observable<Void> {
-        return realmWriteOperationObservable(thread: thread, writeOperation: true, operation: { (realm: Realm) -> () in
+        return realmWriteOperationObservable(thread: thread, writeOperation: true) { realm in
             realm.create(type, value: value, update: update)
-        })
+        }
     }
     
     
     // MARK: - Deletion
     
-    /**
-    Deletes the object from Realm
-    
-    :param: object     object to be deleted
-    :param: thread     RealmThread where the operation will be executed
-    
-    :returns: Observable that fires the operation
-    */
+  /**
+  Deletes an Object from Realm
+
+  - parameter object: Object to be deleted
+  - parameter thread: Thread to execute Realm actions
+
+  - returns: Observable that fires the operation
+  */
     static func rx_delete(object: Object, thread: RealmThread) -> Observable<Void> {
-        return realmWriteOperationObservable(thread: thread, writeOperation: true, operation: { (realm: Realm) -> () in
+        return realmWriteOperationObservable(thread: thread, writeOperation: true) { realm in
             realm.delete(object)
-        })
+        }
     }
     
-    /**
-     Deletes the objects from Realm
-     
-     :param: objects objects to be deleted
-     :param: thread  RealmThread where the operation will be executed
-     
-     :returns: Observable that fires the operation
-     */
+   /**
+   Deletes Objects from a realm
+
+   - parameter objects: Objects to be deleted
+   - parameter thread:  Thread to execute Realm actions
+
+   - returns: Observable that fires the operation
+   */
     static func rx_delete<S: SequenceType where S.Generator.Element: Object>(objects: S, thread: RealmThread) -> Observable<Void> {
-        return realmWriteOperationObservable(thread: thread, writeOperation: true, operation: { (realm: Realm) -> () in
+        return realmWriteOperationObservable(thread: thread, writeOperation: true) { realm in
             realm.delete(objects)
-        })
+        }
     }
-    
-    /**
-     Deletes the objects from Realm
-     
-     :param: objects objects to be deleted
-     :param: thread  RealmThread where the operation will be executed
-     
-     :returns: Observable that fires the operation
-     */
+
+   /**
+   Deletes Objects from a Realm
+
+   - parameter objects: List of Objects to delete
+   - parameter thread:  Thread to execute Realm actions
+
+   - returns: Observable that fires the operation
+   */
     static func rx_delete<T: Object>(objects: List<T>, thread: RealmThread) -> Observable<Void> {
-        return realmWriteOperationObservable(thread: thread, writeOperation: true, operation: { (realm: Realm) -> () in
+        return realmWriteOperationObservable(thread: thread, writeOperation: true)  { realm in
             realm.delete(objects)
-        })
+        }
     }
     
-    /**
-     Deletes the objects from Realm
-     
-     :param: objects objects to be deleted
-     :param: thread  RealmThread where the operation will be executed
-     
-     :returns: Observable that fires the operation
-     */
+   /**
+   Deletes Objects from a Realm
+
+   - parameter objects: List of Objects to delete
+   - parameter thread:  Thread to execute Realm actions
+
+   - returns: Observable that fires the operation
+   */
     static func rx_delete<T: Object>(objects: Results<T>, thread: RealmThread) ->  Observable<Void> {
-        return realmWriteOperationObservable(thread: thread, writeOperation: true, operation: { (realm: Realm) -> () in
+        return realmWriteOperationObservable(thread: thread, writeOperation: true) { realm in
             realm.delete(objects)
-        })
+        }
     }
-    
-    /**
-     Deletes all the objects from Realm
-     
-     :returns: Observable that fires the operation
-     */
+
+   /**
+   Deletes all objects from Realm
+
+   - parameter thread: Thread to execute Realm actions
+
+   - returns: Observable that fires the operation
+   */
     static func rx_deleteAll(thread: RealmThread) -> Observable<Void> {
-        return realmWriteOperationObservable(thread: thread, writeOperation: true, operation: { (realm: Realm) -> () in
+        return realmWriteOperationObservable(thread: thread, writeOperation: true) { realm in
             realm.deleteAll()
-        })
+        }
     }
     
     
     // MARK: - Querying
     
-    /**
-    Returns objects of the given type
-    Note: This Observable has to be subscribed in the Main Thread
-    
-    :param: type object type
-    
-    :returns: Observable that fires the operation
-    */
+  /**
+  Returns objects of the given type
+
+  **Note: This observable has to be subscribed on the Main Thread**
+
+  - parameter type: Object type
+
+  - returns: Observable containing Results for the Type
+  */
     static func rx_objects<T: Object>(type: T.Type) -> Observable<RealmSwift.Results<T>> {
-        return RxSwift.create { observer -> Disposable in
+        return RxSwift.create { observer in
             if !NSThread.isMainThread() {
                 observer.onError(RealmError.InvalidReadThread)
             }
@@ -227,16 +245,16 @@ public extension Realm {
         }
     }
     
-    /**
-     Returns the object with the given primary key
-     
-     :param: type object type
-     :param: key  primary key
-     
-     :returns: Observable that fires the operation
-     */
+   /**
+   Returns an Object with a given primary key
+
+   - parameter type: Object type
+   - parameter key:  Primary key
+
+   - returns: Observable containing the object associated with `key`
+   */
     static func rx_objectForPrimaryKey<T: Object>(type: T.Type, key: AnyObject) -> Observable<T?> {
-        return RxSwift.create { observer -> Disposable in
+        return RxSwift.create { observer in
             if !NSThread.isMainThread() {
                 observer.onError(RealmError.InvalidReadThread)
             }
@@ -253,58 +271,51 @@ public extension Realm {
             return NopDisposable.instance
         }
     }
-    
 }
 
 
 // MARK: - Reactive Operators
 
 /**
-Filters the Observable of Results<T> applying an NSPredicate
+Filter Realm `Object` of a given type with a given predicate
 
-:param: predicate filtering predicate
+- parameter predicate: Predicate to filter objects
 
-:returns: filtered Observable
+- returns: Observable containing filtered results for `Object`
 */
 public func filter<T: Object>(predicate: NSPredicate) -> Observable<Results<T>> -> Observable<Results<T>> {
     return { (observable: Observable<Results<T>>) -> Observable<Results<T>> in
         return observable
-            .map {
-                $0.filter(predicate)
-            }
+            .map { $0.filter(predicate) }
     }
 }
 
-/**
- Filters the Observable of Results<T> applying a predicate string
- 
- :param: predicateSring filtering predicate
- 
- :returns: filtered Observable
+ /**
+ Filter Realm `Object` of a given type with a given predicate
+
+ - parameter predicateString: Predicate to filter objects
+
+ - returns: Observable containing filtered results for `Object`
  */
 public func filter<T>(predicateString: String) -> Observable<Results<T>> -> Observable<Results<T>> {
     return { (observable: Observable<Results<T>>) -> Observable<Results<T>> in
         return observable
-            .map {
-                $0.filter(predicateString)
-            }
+            .map { $0.filter(predicateString) }
     }
 }
 
-/**
- Sorts the Observable of Results<T> using a key an the ascending value
- 
- :param: key key the results will be sorted by
- :param: ascending true if the results sort order is ascending
- 
- :returns: sorted Observable
+ /**
+ Sorts `Results` for a given objects using by using a key in ascending/descending order
+
+ - parameter key:       Key the results should be sorted by
+ - parameter ascending: true iff the results sort order is ascending
+
+ - returns: Observable of a sorted `Results` set
  */
 public func sorted<T>(key: String, ascending: Bool = true) -> Observable<Results<T>> -> Observable<Results<T>> {
     return { (observable: Observable<Results<T>>) -> Observable<Results<T>> in
         return observable
-            .map {
-                $0.sorted(key, ascending: ascending)
-            }
+            .map { $0.sorted(key, ascending: ascending) }
     }
 }
 
