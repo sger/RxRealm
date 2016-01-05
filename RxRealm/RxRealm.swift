@@ -122,7 +122,7 @@ public extension Realm {
   */
     static func rx_add<S: SequenceType where S.Generator.Element: Object>(objects: S, update: Bool = false, thread: RealmThread = .BackgroundThread) -> Observable<Void> {
         return realmWriteOperationObservable(thread: thread, writeOperation: true) { realm in
-            realm.add(objects)
+            realm.add(objects, update: update)
         }
     }
 
